@@ -1,11 +1,19 @@
 package br.com.coursespring.data.vo.v1;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.Objects;
 
+@JsonPropertyOrder({"id", "first_name", "last_name", "address", "gender"})
 public class PersonVO {
 
     private Long id;
+
+    @JsonProperty(value = "first_name")
     private String firstName;
+
+    @JsonProperty(value = "last_name")
     private String lastName;
     private String address;
     private String gender;
