@@ -1,5 +1,6 @@
-package br.com.coursespring;
+package br.com.coursespring.repositories;
 
+import br.com.coursespring.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
