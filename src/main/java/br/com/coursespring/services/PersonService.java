@@ -1,9 +1,12 @@
 package br.com.coursespring.services;
 
 import br.com.coursespring.Person;
+import br.com.coursespring.controllers.PersonController;
 import br.com.coursespring.data.vo.v1.PersonVO;
 import br.com.coursespring.exceptions.ResourceNotFoundException;
 import br.com.coursespring.mappers.GenericMapper;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import br.com.coursespring.repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,10 +26,14 @@ public class PersonService {
 
         logger.info("Finding one person!");
 
-        Person etity = personRepository.findById(id)
+        Person entity = personRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No records found for this ID!"));
 
-        return GenericMapper.parseObject(etity, PersonVO.class);
+        PersonVO vo = GenericMapper.parseObject(entity, PersonVO.class);
+
+        vo.add(linkTo(methodOn(PersonController.class).findById(id)).withSelfRel());
+
+        return vo;
     }
 
     public List<PersonVO> findAll() {
@@ -35,7 +42,13 @@ public class PersonService {
 
         List<Person> people = personRepository.findAll();
 
-        return GenericMapper.parseListObjects(people, PersonVO.class);
+        List<PersonVO> peopleVO = GenericMapper.parseListObjects(people, PersonVO.class);
+
+        peopleVO.forEach((personVO) ->
+                personVO.add(linkTo(methodOn(PersonController.class).findById(personVO.getKey())).withSelfRel()));
+
+
+        return peopleVO;
     }
 
     public PersonVO create(PersonVO personVO) {
@@ -43,13 +56,17 @@ public class PersonService {
 
         Person person = GenericMapper.parseObject(personVO, Person.class);
 
-        return GenericMapper.parseObject(personRepository.save(person), PersonVO.class);
+        PersonVO personVOMapped = GenericMapper.parseObject(personRepository.save(person), PersonVO.class);
+
+        personVOMapped.add(linkTo(methodOn(PersonController.class).findById(personVOMapped.getKey())).withSelfRel());
+
+        return personVOMapped;
     }
 
     public PersonVO update(PersonVO personVO) {
         logger.info("Updating one person");
 
-        PersonVO personVOFound = findById(personVO.getId());
+        PersonVO personVOFound = findById(personVO.getKey());
         personVOFound.setFirstName(personVO.getFirstName());
         personVOFound.setLastName(personVO.getLastName());
         personVOFound.setAddress(personVO.getAddress());
@@ -57,7 +74,11 @@ public class PersonService {
 
         Person person = GenericMapper.parseObject(personVOFound, Person.class);
 
-        return  GenericMapper.parseObject(personRepository.save(person), PersonVO.class);
+        PersonVO personVOMapped = GenericMapper.parseObject(personRepository.save(person), PersonVO.class);
+
+        personVOMapped.add(linkTo(methodOn(PersonController.class).findById(personVOMapped.getKey())).withSelfRel());
+
+        return  personVOMapped;
     }
 
     public void delete(Long id) {
