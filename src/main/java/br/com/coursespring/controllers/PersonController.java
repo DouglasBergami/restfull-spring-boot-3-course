@@ -1,5 +1,6 @@
 package br.com.coursespring.controllers;
 
+import br.com.coursespring.config.WebConfig;
 import br.com.coursespring.data.vo.v1.PersonVO;
 import br.com.coursespring.services.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,22 +17,22 @@ public class PersonController {
     @Autowired
     private PersonService personService;
 
-    @GetMapping()
+    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml" })
     public List<PersonVO> findAll() {
         return personService.findAll();
     }
 
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{id}", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml" })
     public PersonVO findById(@PathVariable(value = "id") Long id) {
         return personService.findById(id);
     }
 
-    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml" })
     public PersonVO create(@RequestBody() PersonVO person) {
         return personService.create(person);
     }
 
-    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE, "application/x-yaml" })
     public PersonVO update(@RequestBody() PersonVO person) {
         return personService.update(person);
     }
