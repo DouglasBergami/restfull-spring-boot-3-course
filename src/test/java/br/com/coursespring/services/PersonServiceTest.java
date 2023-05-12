@@ -5,6 +5,8 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import br.com.coursespring.data.vo.v1.PersonVO;
+import br.com.coursespring.exceptions.RequiredObjectIsNullException;
+import br.com.coursespring.exceptions.ResourceNotFoundException;
 import br.com.coursespring.repositories.PersonRepository;
 import br.com.coursespring.services.mocks.MockPerson;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,6 +85,17 @@ public class PersonServiceTest {
     }
 
     @Test
+    void not_found_person() {
+        when(personRepository.findById(1L)).thenReturn(Optional.ofNullable(null));
+
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> service.findById(1L));
+
+        String expectedMessage = "No records found for this ID!";
+
+        assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
     void create() {
         Person entity = input.mockEntity(1);
         PersonVO personVO = input.mockVO(1);
@@ -101,6 +114,15 @@ public class PersonServiceTest {
         assertEquals(personVO.getGender(), result.getGender());
         assertEquals(link.getRel().value(), "self");
         assertEquals(link.getHref(), "/api/person/v1/1");
+    }
+
+    @Test
+    void create_with_null_person() {
+        Exception exception = assertThrows(RequiredObjectIsNullException.class, () -> service.create(null));
+
+        String expectedMessage = "It is not allowed to persist a null object";
+
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
@@ -128,6 +150,28 @@ public class PersonServiceTest {
     }
 
     @Test
+    void update_with_null_person() {
+        Exception exception = assertThrows(RequiredObjectIsNullException.class, () -> service.update(null));
+
+        String expectedMessage = "It is not allowed to persist a null object";
+
+        assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
+    void update_not_found_person() {
+        PersonVO personVO = input.mockVO(1);
+
+        when(personRepository.findById(1L)).thenReturn(Optional.ofNullable(null));
+
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> service.update(personVO));
+
+        String expectedMessage = "No records found for this ID!";
+
+        assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    @Test
     void delete() {
         Person entity = input.mockEntity(1);
 
@@ -136,5 +180,16 @@ public class PersonServiceTest {
         service.delete(1L);
 
         verify(personRepository, times(1)).delete(any(Person.class));
+    }
+
+    @Test
+    void delete_not_found_person() {
+        when(personRepository.findById(1L)).thenReturn(Optional.ofNullable(null));
+
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> service.delete(1L));
+
+        String expectedMessage = "No records found for this ID!";
+
+        assertEquals(expectedMessage, exception.getMessage());
     }
 }

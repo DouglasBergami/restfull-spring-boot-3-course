@@ -3,6 +3,7 @@ package br.com.coursespring.services;
 import br.com.coursespring.Person;
 import br.com.coursespring.controllers.PersonController;
 import br.com.coursespring.data.vo.v1.PersonVO;
+import br.com.coursespring.exceptions.RequiredObjectIsNullException;
 import br.com.coursespring.exceptions.ResourceNotFoundException;
 import br.com.coursespring.mappers.GenericMapper;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -54,6 +55,8 @@ public class PersonService {
     public PersonVO create(PersonVO personVO) {
         logger.info("Creating one person");
 
+        if(personVO == null) throw new RequiredObjectIsNullException();
+
         Person person = GenericMapper.parseObject(personVO, Person.class);
 
         PersonVO personVOMapped = GenericMapper.parseObject(personRepository.save(person), PersonVO.class);
@@ -65,6 +68,8 @@ public class PersonService {
 
     public PersonVO update(PersonVO personVO) {
         logger.info("Updating one person");
+
+        if(personVO == null) throw new RequiredObjectIsNullException();
 
         PersonVO personVOFound = findById(personVO.getKey());
         personVOFound.setFirstName(personVO.getFirstName());
